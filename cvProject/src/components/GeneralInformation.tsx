@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, Col, Form, OverlayTrigger, Row, Tooltip, TooltipProps} from 'react-bootstrap';
+import { Button, Col, Form, OverlayTrigger, Row, Tooltip} from 'react-bootstrap';
 import { BsPencil, BsTrash } from 'react-icons/bs';
 import { FaRegSave, FaUndo } from 'react-icons/fa';
 
