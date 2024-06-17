@@ -98,21 +98,6 @@ const GeneralInformation: React.FC = () => {
 						<Col>
 							<h1>{generalInformation.firstName} {generalInformation.lastName}</h1>
 						</Col>
-					</Row>
-
-					<Row>
-						<Col>
-							Email: {generalInformation?.email.length? generalInformation.email : 'No email on file'}
-						</Col>
-					</Row>
-
-					<Row>
-						<Col>
-							Phone: {generalInformation?.phone.length? generalInformation.phone : 'No phone number on file'}
-						</Col>
-					</Row>
-
-					<Row style={{paddingTop: '1em', justifyContent: 'right'}}>
 						<Col style={{textAlign: 'right'}}>
 							<OverlayTrigger
 								placement="top"
@@ -131,6 +116,18 @@ const GeneralInformation: React.FC = () => {
 							>
 								<Button variant="secondary" className="btn-sm" onClick={handleDeleteClick}><BsTrash /></Button>
 							</OverlayTrigger>
+						</Col>
+					</Row>
+
+					<Row>
+						<Col>
+							Email: {generalInformation?.email.length? generalInformation.email : 'No email on file'}
+						</Col>
+					</Row>
+
+					<Row>
+						<Col>
+							Phone: {generalInformation?.phone.length? generalInformation.phone : 'No phone number on file'}
 						</Col>
 					</Row>
 				</>

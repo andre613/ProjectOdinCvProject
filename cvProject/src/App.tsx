@@ -1,7 +1,9 @@
-import { Container, Form } from 'react-bootstrap'
+import { Container, Form } from 'react-bootstrap';
+import 'react-datepicker/dist/react-datepicker.css';
 
 import './App.css';
 import GeneralInformation from './components/GeneralInformation'
+import EducationalExperienceList from './components/EducationalExperience';
 
 const App: React.FC = () => (
 	<Container fluid
@@ -13,6 +15,8 @@ const App: React.FC = () => (
 
 			<Form id="cvForm">
 				<GeneralInformation />
+				<hr />
+				<EducationalExperienceList />
 			</Form>
 	</Container>
 	);
