@@ -11,7 +11,7 @@ interface GeneralInformationData {
 }
 
 const GeneralInformation: React.FC = () => {
-	const [isEditing, setIsEditing] = useState<Boolean>(true);
+	const [isEditing, setIsEditing] = useState<boolean>(true);
 
 	const [generalInformation, setGeneralInformation] = useState<GeneralInformationData>({
 		firstName: '',
@@ -98,6 +98,7 @@ const GeneralInformation: React.FC = () => {
 						<Col>
 							<h1>{generalInformation.firstName} {generalInformation.lastName}</h1>
 						</Col>
+						
 						<Col style={{textAlign: 'right'}}>
 							<OverlayTrigger
 								placement="top"

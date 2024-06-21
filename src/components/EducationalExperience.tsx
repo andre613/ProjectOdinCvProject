@@ -1,35 +1,41 @@
 import moment from 'moment';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Col, Form, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
+import { BsPencil, BsTrash } from 'react-icons/bs';
 import { FaRegSave, FaUndo } from 'react-icons/fa';
 import { RiStickyNoteAddFill } from 'react-icons/ri';
 
 interface EducationalExperienceData {
 	schoolName: string;
 	titleOfStudy: string;
-	graduationDate: string;
+	graduationDate: Date;
 }
 
 interface EducationalExperienceProps {
-	isForAdding?: Boolean;
+	isForAdding?: boolean;
 	data: EducationalExperienceData | null;
-	saveEducationalExperience: (data: EducationalExperienceData) => void;
+	saveEducationalExperience: (data: EducationalExperienceData, index: number | null) => void;
+	deleteEducationalExperience?: (index: number) => void;
 	cancelAdding?: () => void;
+	index?: number | null;
+	key?: string | null;
 }
 
 const EducationalExperience: React.FC<EducationalExperienceProps> = ({
 	saveEducationalExperience,
+	deleteEducationalExperience,
 	cancelAdding,
 	data = null,
-	isForAdding= false
+	isForAdding = false,
+	index = null
 }) => {
-	const [isEditing, setIsEditing] = useState<Boolean>(data === null);
+	const [isEditing, setIsEditing] = useState<boolean>(data === null);
 	const [newSchoolName, setNewSchoolName] = useState<string>(data? data.schoolName : '');
 	const [newTitleOfStudy, setNewTitleOfStudy] = useState<string>(data? data.titleOfStudy : '');
 
 	const [newGraduationDate, setNewGraduationdate] =
-		useState<string>(data? data.graduationDate: moment(new Date()).format('YYYY/MM/DD'));
+		useState<Date>(data? data.graduationDate: new Date());
 
 	const handleNewSchoolNameChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
 		setNewSchoolName(e.target.value);
@@ -43,12 +49,14 @@ const EducationalExperience: React.FC<EducationalExperienceProps> = ({
 		saveEducationalExperience({
 			graduationDate: newGraduationDate,
 			schoolName: newSchoolName,
-			titleOfStudy: newTitleOfStudy});
+			titleOfStudy: newTitleOfStudy}, index);
 
 		if(isForAdding){
 			cancelAdding!();
 		}
-	}
+
+		setIsEditing(false);
+	};
 
 	const handleCancelButtonClick = (): void => {
 		if(isForAdding) {
@@ -59,7 +67,12 @@ const EducationalExperience: React.FC<EducationalExperienceProps> = ({
 		if(!isForAdding) {
 			setIsEditing(false);
 		}
-	}
+	};
+
+	const handleDeleteButtonClick = (): void => {
+		setIsEditing(false);
+		deleteEducationalExperience!(index as number);
+	};
 
 	const saveEnabled = newSchoolName && newTitleOfStudy && newGraduationDate;
 	return (
@@ -69,6 +82,27 @@ const EducationalExperience: React.FC<EducationalExperienceProps> = ({
 					<Row>
 						<Col>
 							<h4>{newSchoolName}</h4>
+						</Col>
+						<Col style={{textAlign: 'right'}}>
+							<OverlayTrigger
+								placement="top"
+								overlay={
+									<Tooltip id="editButtonToolTip">Edit Educational Experience</Tooltip>
+								}
+							>
+								<Button variant="primary" className="btn-sm" onClick={() => setIsEditing(true)}><BsPencil /></Button>
+							</OverlayTrigger>&nbsp;
+
+							<OverlayTrigger
+								placement="bottom"
+								overlay={
+									<Tooltip id="deleteButtonToolTip">Delete Educational Experience</Tooltip>
+								}
+							>
+								<Button variant="secondary" className="btn-sm" onClick={handleDeleteButtonClick}>
+									<BsTrash />
+								</Button>
+							</OverlayTrigger>
 						</Col>
 					</Row>
 
@@ -122,8 +156,8 @@ const EducationalExperience: React.FC<EducationalExperienceProps> = ({
 								toggleCalendarOnIconClick
 								dateFormat="yyyy/MM/dd"
 								showYearDropdown
-								selected={moment(newGraduationDate).toDate()}
-								onChange={(date) => {setNewGraduationdate(moment(date).format('YYYY/MM/DD'));}}
+								selected={newGraduationDate}
+								onChange={(date) => {setNewGraduationdate(date!);}}
 							/>
 						</Form.Group>
 					</Row>
@@ -169,55 +203,86 @@ const EducationalExperience: React.FC<EducationalExperienceProps> = ({
 
 const EducationalExperienceList: React.FC = () => {
 	const [educationalExperienceItems, setEducationalExperienceItems] = useState<EducationalExperienceData[]>([]);
-	const [isAdding, setIsAdding] = useState<Boolean>(false);
+	const [isAdding, setIsAdding] = useState<boolean>(false);
 	const handleAddEducationalExperienceClick = () => {setIsAdding(true)};
 
-	const addEducationalExperience = (data: EducationalExperienceData): void => {
-		setEducationalExperienceItems((prev) => ([...prev, data]));
+	const saveEducationalExperience = (data: EducationalExperienceData, index: number|null = null): void => {
+		let newEducationalExperienceItems : EducationalExperienceData[] = [];
+
+		if (index === null) {
+			newEducationalExperienceItems = [...educationalExperienceItems, data];
+			setEducationalExperienceItems(newEducationalExperienceItems);
+		}
+		else {
+			newEducationalExperienceItems = [...educationalExperienceItems];
+			newEducationalExperienceItems[index] = data;
+			setEducationalExperienceItems(newEducationalExperienceItems)
+		}
+
+		localStorage.setItem('educationalExperiences', JSON.stringify(newEducationalExperienceItems));
 	};
 
-	const saveEducationalExperience = (data: EducationalExperienceData): void => {console.log(JSON.stringify(data))};
+	const deleteEducationalExperience = (index: number): void => {
+		const newEducationalExperienceItems = [... educationalExperienceItems];
+		newEducationalExperienceItems.splice(index, 1);
+		setEducationalExperienceItems(newEducationalExperienceItems);
+		localStorage.setItem('educationalExperiences', JSON.stringify(newEducationalExperienceItems));
+	};
+
+	useEffect(() => {
+		const serializedEducaitonalExperienceItems = localStorage.getItem('educationalExperiences');
+		if(serializedEducaitonalExperienceItems) {
+			setEducationalExperienceItems(JSON.parse(serializedEducaitonalExperienceItems));
+		}
+
+	}, []);
 
 	return(
-	<>
-		<Row style={{paddingBottom: '1em'}}>
-			<Col>
-				<h3>Educational Experience</h3>
-			</Col>
+		<>
+			<Row style={{paddingBottom: '1em'}}>
+				<Col>
+					<h3>Educational Experience</h3>
+				</Col>
 
-			<Col style={{textAlign: 'right'}}>
-				<OverlayTrigger
-					placement="top"
-					overlay={
-						<Tooltip id="addEducationalExperienceToolTip">Add Educational Experience</Tooltip>
-					}
-				>
-					<Button variant="primary" className="btn-sm" onClick={handleAddEducationalExperienceClick}>
-						<RiStickyNoteAddFill />
-					</Button>
-				</OverlayTrigger>&nbsp;
-			</Col>
-		</Row>
+				<Col style={{textAlign: 'right'}}>
+					<OverlayTrigger
+						placement="top"
+						overlay={
+							<Tooltip id="addEducationalExperienceToolTip">Add Educational Experience</Tooltip>
+						}
+					>
+						<Button variant="primary" className="btn-sm" onClick={handleAddEducationalExperienceClick}>
+							<RiStickyNoteAddFill />
+						</Button>
+					</OverlayTrigger>&nbsp;
+				</Col>
+			</Row>
 
-		{isAdding &&
-			<EducationalExperience
-				data={null}
-				saveEducationalExperience={addEducationalExperience}
-				isForAdding
-				cancelAdding={() => setIsAdding(false)}
-			/>
-		}
+			{isAdding &&
+				<EducationalExperience
+					key="addEducationalExperience"
+					data={null}
+					saveEducationalExperience={saveEducationalExperience}
+					isForAdding
+					cancelAdding={() => setIsAdding(false)}
+				/>
+			}
 
-		{
-			educationalExperienceItems.length? educationalExperienceItems.map(
-				(ee) => (
-				<>
-					<EducationalExperience data={ee} saveEducationalExperience={saveEducationalExperience}/>
-				</>
-				)) :
-			'No Educational Experience On File'
-		}
-	</>);
+			{
+				educationalExperienceItems.length? educationalExperienceItems.map(
+					(ee: EducationalExperienceData, index: number) => (
+						<EducationalExperience
+							key={Math.random().toString()} 
+							data={ee}
+							index={index} 
+							saveEducationalExperience={saveEducationalExperience} 
+							deleteEducationalExperience={deleteEducationalExperience}
+						/>
+					)
+				) :
+				'No Educational Experience On File'
+			}
+		</>);
 }
 
 export default EducationalExperienceList;
