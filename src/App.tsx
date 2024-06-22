@@ -4,6 +4,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import './App.css';
 import GeneralInformation from './components/GeneralInformation'
 import EducationalExperienceList from './components/EducationalExperience';
+import PracticalExperienceList from './components/PracticalExperience';
 
 const App: React.FC = () => (
 	<Container fluid
@@ -17,6 +18,8 @@ const App: React.FC = () => (
 				<GeneralInformation />
 				<hr />
 				<EducationalExperienceList />
+				<hr />
+				<PracticalExperienceList />
 			</Form>
 	</Container>
 	);

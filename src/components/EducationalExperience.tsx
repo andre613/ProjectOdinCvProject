@@ -14,7 +14,7 @@ interface EducationalExperienceData {
 
 interface EducationalExperienceProps {
 	isForAdding?: boolean;
-	data: EducationalExperienceData | null;
+	data?: EducationalExperienceData | null;
 	saveEducationalExperience: (data: EducationalExperienceData, index: number | null) => void;
 	deleteEducationalExperience?: (index: number) => void;
 	cancelAdding?: () => void;
@@ -47,9 +47,11 @@ const EducationalExperience: React.FC<EducationalExperienceProps> = ({
 
 	const handleSaveButtonClick = (): void => {
 		saveEducationalExperience({
-			graduationDate: newGraduationDate,
-			schoolName: newSchoolName,
-			titleOfStudy: newTitleOfStudy}, index);
+				graduationDate: newGraduationDate,
+				schoolName: newSchoolName,
+				titleOfStudy: newTitleOfStudy
+			}, 
+			index);
 
 		if(isForAdding){
 			cancelAdding!();
@@ -63,8 +65,7 @@ const EducationalExperience: React.FC<EducationalExperienceProps> = ({
 			cancelAdding!();
 			setIsEditing(true);
 		}
-
-		if(!isForAdding) {
+		else {
 			setIsEditing(false);
 		}
 	};
@@ -75,6 +76,7 @@ const EducationalExperience: React.FC<EducationalExperienceProps> = ({
 	};
 
 	const saveEnabled = newSchoolName && newTitleOfStudy && newGraduationDate;
+
 	return (
 		<>
 			{!isEditing && !isForAdding &&
@@ -149,7 +151,9 @@ const EducationalExperience: React.FC<EducationalExperienceProps> = ({
 					<Row style={{paddingBottom: '1em'}}>
 						<Form.Group as={Col} controlId="GraduationDate">
 							<Form.Label>Graduation Date</Form.Label>
+							
 							<br />
+							
 							<DatePicker
 								value={moment(newGraduationDate).format('YYYY/MM/DD')}
 								showIcon
@@ -204,21 +208,23 @@ const EducationalExperience: React.FC<EducationalExperienceProps> = ({
 const EducationalExperienceList: React.FC = () => {
 	const [educationalExperienceItems, setEducationalExperienceItems] = useState<EducationalExperienceData[]>([]);
 	const [isAdding, setIsAdding] = useState<boolean>(false);
-	const handleAddEducationalExperienceClick = () => {setIsAdding(true)};
+	
+	const handleAddEducationalExperienceClick = () => {
+		setIsAdding(true);
+	};
 
-	const saveEducationalExperience = (data: EducationalExperienceData, index: number|null = null): void => {
-		let newEducationalExperienceItems : EducationalExperienceData[] = [];
+	const saveEducationalExperience = (data: EducationalExperienceData, index: number | null = null): void => {
+		let newEducationalExperienceItems: EducationalExperienceData[] = [];
 
 		if (index === null) {
 			newEducationalExperienceItems = [...educationalExperienceItems, data];
-			setEducationalExperienceItems(newEducationalExperienceItems);
 		}
 		else {
 			newEducationalExperienceItems = [...educationalExperienceItems];
-			newEducationalExperienceItems[index] = data;
-			setEducationalExperienceItems(newEducationalExperienceItems)
+			newEducationalExperienceItems[index] = data;	
 		}
 
+		setEducationalExperienceItems(newEducationalExperienceItems);
 		localStorage.setItem('educationalExperiences', JSON.stringify(newEducationalExperienceItems));
 	};
 
@@ -231,10 +237,10 @@ const EducationalExperienceList: React.FC = () => {
 
 	useEffect(() => {
 		const serializedEducaitonalExperienceItems = localStorage.getItem('educationalExperiences');
+		
 		if(serializedEducaitonalExperienceItems) {
 			setEducationalExperienceItems(JSON.parse(serializedEducaitonalExperienceItems));
 		}
-
 	}, []);
 
 	return(
@@ -254,14 +260,13 @@ const EducationalExperienceList: React.FC = () => {
 						<Button variant="primary" className="btn-sm" onClick={handleAddEducationalExperienceClick}>
 							<RiStickyNoteAddFill />
 						</Button>
-					</OverlayTrigger>&nbsp;
+					</OverlayTrigger>
 				</Col>
 			</Row>
 
 			{isAdding &&
 				<EducationalExperience
 					key="addEducationalExperience"
-					data={null}
 					saveEducationalExperience={saveEducationalExperience}
 					isForAdding
 					cancelAdding={() => setIsAdding(false)}
@@ -280,9 +285,15 @@ const EducationalExperienceList: React.FC = () => {
 						/>
 					)
 				) :
-				'No Educational Experience On File'
+
+				<Row>
+					<Col>
+						<p>No Educational Experience On File.</p>
+					</Col>
+				</Row>
 			}
-		</>);
-}
+		</>
+	);
+};
 
 export default EducationalExperienceList;
