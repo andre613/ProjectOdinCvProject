@@ -96,7 +96,7 @@ const PracticalExperience: React.FC<PracticalExperienceProps> = ({
   <>
     {!isEditing && !isForAdding &&
       <>
-        <Row>
+        `<Row>`
           <Col>
             <h4>{newCompanyName}</h4>
           </Col>
